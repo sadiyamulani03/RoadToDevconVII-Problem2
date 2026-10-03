@@ -1,0 +1,43 @@
+{
+  "name": "who-in-here-can-help-me",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ENS community people-finder for RoadToDevcon VII Problem 2. Live Sepolia ENS text records, deterministic bounded retrieval, schema-validated LLM answers with a candidate membership guard.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "index": "tsx scripts/reindex.ts --source ens",
+    "index:demo": "tsx scripts/reindex.ts --source fixture",
+    "refresh": "npm run index",
+    "seed": "tsx scripts/seed-community.ts",
+    "seed:dry": "tsx scripts/seed-community.ts --dry-run",
+    "answer": "tsx scripts/answer-cli.ts",
+    "verify:ens": "tsx scripts/verify-ens.ts"
+  },
+  "dependencies": {
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "viem": "^2.24.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.0",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.20.0",
+    "eslint-config-next": "^15.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

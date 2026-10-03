@@ -1,0 +1,161 @@
+import { promises as fs, readFileSync } from "fs";
+import path from "path";
+import { z } from "zod";
+import type { PublicClient } from "viem";
+import { normalizeProfile, readCommunityProfile } from "./profileReader";
+import type { CommunityMember } from "./community";
+import type { CommunityProfile } from "../types/profile";
+
+const CommunityProfileSchema = z.object({
+  ensName: z.string().min(1),
+  label: z.string().min(1),
+  bio: z.string(),
+  skills: z.array(z.string()),
+  availability: z.string(),
+  role: z.string(),
+  mentoring: z.string(),
+});
+
+const EnsIndexSchema = z.object({
+  meta: z.object({
+    /** Where this index was built from: live Sepolia ENS reads or the documented offline fixture */
+    source: z.enum(["ens", "fixture"]),
+    builtAt: z.string(),
+    chainId: z.number().nullable(),
+    chain: z.string(),
+  }),
+  profiles: z.array(CommunityProfileSchema),
+  errors: z.array(z.object({ ensName: z.string(), reason: z.string() })),
+});
+
+export type EnsIndex = z.infer<typeof EnsIndexSchema>;
+
+export const DEFAULT_INDEX_PATH = path.join(process.cwd(), ".data", "ens-index.json");
+export const DEFAULT_FIXTURE_PATH = path.join(process.cwd(), "fixtures", "sepolia-community-fixture.json");
+
+const ENS_READ_CONCURRENCY = 4;
+
+async function mapWithConcurrency<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await fn(items[index]!);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+/**
+ * Builds the index from LIVE ENS text-record reads on Sepolia.
+ *
+ * ENS name -> resolver -> text records (getEnsText) -> normalized profile.
+ * This is the runtime indexing path; hardcoded profiles are never used here.
+ */
+export async function buildIndexFromEns(client: PublicClient, members: CommunityMember[]): Promise<EnsIndex> {
+  const readResults = await mapWithConcurrency(members, ENS_READ_CONCURRENCY, (member) =>
+    readCommunityProfile(client, member.name),
+  );
+
+  const profiles: CommunityProfile[] = [];
+  const errors: Array<{ ensName: string; reason: string }> = [];
+  for (const result of readResults) {
+    if (result.ok) {
+      profiles.push(result.profile);
+    } else {
+      errors.push({ ensName: result.ensName, reason: result.reason });
+    }
+  }
+
+  profiles.sort((a, b) => a.ensName.localeCompare(b.ensName));
+  return {
+    meta: {
+      source: "ens",
+      builtAt: new Date().toISOString(),
+      chainId: client.chain?.id ?? null,
+      chain: client.chain?.name ?? "sepolia",
+    },
+    profiles,
+    errors,
+  };
+}
+
+/**
+ * Core normalization from raw record maps into an index. Used ONLY by:
+ *  - the explicitly documented offline demo fixture (fixtures/sepolia-community-fixture.json)
+ *  - automated tests that exercise indexing with mocked ENS reads
+ * It applies the exact same normalization as the live ENS path.
+ */
+export function buildIndexFromProfileRecords(
+  entries: Array<{ name: string; records: Record<string, string> }>,
+  meta?: Partial<EnsIndex["meta"]>,
+): EnsIndex {
+  const profiles: CommunityProfile[] = [];
+  const errors: Array<{ ensName: string; reason: string }> = [];
+  for (const entry of entries) {
+    const profile = normalizeProfile(entry.name, entry.records);
+    if (profile) {
+      profiles.push(profile);
+    } else {
+      errors.push({ ensName: entry.name, reason: "no profile content found (bio and skills text records are empty)" });
+    }
+  }
+  profiles.sort((a, b) => a.ensName.localeCompare(b.ensName));
+  return {
+    meta: {
+      source: "fixture",
+      builtAt: new Date().toISOString(),
+      chainId: null,
+      chain: "sepolia",
+      ...meta,
+    },
+    profiles,
+    errors,
+  };
+}
+
+/**
+ * Builds an index from the explicitly documented offline fixture. This is a
+ * TEST/DEMO fixture, not the runtime source of truth: the runtime index is
+ * built from live Sepolia ENS text-record reads (`npm run index`).
+ */
+export function buildIndexFromFixture(fixturePath = DEFAULT_FIXTURE_PATH): EnsIndex {
+  const raw = readFileSync(fixturePath, "utf8");
+  const json = JSON.parse(raw) as { profiles?: Array<{ name?: string; records?: Record<string, string> }> };
+  const entries = (json.profiles ?? []).flatMap((profile) =>
+    profile?.name && profile.records ? [{ name: profile.name, records: profile.records }] : [],
+  );
+  return buildIndexFromProfileRecords(entries);
+}
+
+/** Persists the index as a simple JSON file generated from ENS reads. */
+export async function saveIndex(index: EnsIndex, filePath = DEFAULT_INDEX_PATH): Promise<void> {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${JSON.stringify(index, null, 2)}\n`, "utf8");
+}
+
+/** Loads the persisted index (generated by `npm run index` / `npm run index:demo`). */
+export async function loadIndex(filePath = DEFAULT_INDEX_PATH): Promise<EnsIndex | null> {
+  let raw: string;
+  try {
+    raw = await fs.readFile(filePath, "utf8");
+  } catch {
+    return null;
+  }
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    console.warn(`[index] persisted index at ${filePath} is not valid JSON; treating as missing`);
+    return null;
+  }
+  const parsed = EnsIndexSchema.safeParse(json);
+  if (!parsed.success) {
+    console.warn(`[index] persisted index at ${filePath} failed validation; treating as missing. Run \`npm run index\` to rebuild.`);
+    return null;
+  }
+  return parsed.data;
+}

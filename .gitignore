@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+coverage/
+
+# Environment files hold secrets. Never commit them.
+.env
+.env.*
+!.env.example
+
+# Generated index cache (rebuilt from live Sepolia ENS reads with `npm run index`)
+.data/
+
+*.tsbuildinfo
+.DS_Store

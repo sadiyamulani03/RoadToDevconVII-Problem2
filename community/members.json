@@ -1,0 +1,15 @@
+{
+  "parent": "roadtodevcon.eth",
+  "chain": "sepolia",
+  "members": [
+    { "name": "rust-mentor.roadtodevcon.eth", "label": "rust-mentor" },
+    { "name": "solidity-sam.roadtodevcon.eth", "label": "solidity-sam" },
+    { "name": "react-rina.roadtodevcon.eth", "label": "react-rina" },
+    { "name": "crypto-carla.roadtodevcon.eth", "label": "crypto-carla" },
+    { "name": "devops-dan.roadtodevcon.eth", "label": "devops-dan" },
+    { "name": "protocol-priya.roadtodevcon.eth", "label": "protocol-priya" },
+    { "name": "security-sol.roadtodevcon.eth", "label": "security-sol" },
+    { "name": "web-warren.roadtodevcon.eth", "label": "web-warren" },
+    { "name": "troll-trudy.roadtodevcon.eth", "label": "troll-trudy" }
+  ]
+}
