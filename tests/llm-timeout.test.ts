@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi, beforeAll } from "vitest";
-import { MODEL_TIMEOUT_MS, chatCompletion, LlmError, isLlmConfigured } from "../src/llm/client";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { MODEL_TIMEOUT_MS, chatCompletion, isLlmConfigured } from "../src/llm/client";
 import type { ChatMessage } from "../src/llm/client";
 
 afterEach(() => {
@@ -43,11 +43,12 @@ describe("CHECK 6 / Test F — explicit model request timeout", () => {
     vi.stubEnv("LLM_API_KEY", "test-key");
     vi.useFakeTimers();
 
-    const fetchMock = vi.fn(async () =>
-      new Response(JSON.stringify({ choices: [{ message: { content: '{"matches":[],"noMatchReason":null}' } }] }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
+    const fetchMock = vi.fn(
+      async (_url: string | URL, _init?: RequestInit) =>
+        new Response(JSON.stringify({ choices: [{ message: { content: '{"matches":[],"noMatchReason":null}' } }] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
     );
     vi.stubGlobal("fetch", fetchMock);
 

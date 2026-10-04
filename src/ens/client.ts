@@ -9,7 +9,7 @@ import { sepolia } from "viem/chains";
  * required: without SEPOLIA_RPC_URL we fall back to a keyless public Sepolia
  * RPC (thirdweb's anonymous endpoint rate-limits ENS-heavy workloads).
  */
-const DEFAULT_SEPOLIA_RPC = "https://ethereum-sepolia-rpc.publicnode.com";
+export const DEFAULT_SEPOLIA_RPC = "https://ethereum-sepolia-rpc.publicnode.com";
 
 export function createEnsClient(rpcUrl?: string): PublicClient {
   const url = rpcUrl ?? process.env.SEPOLIA_RPC_URL ?? DEFAULT_SEPOLIA_RPC;

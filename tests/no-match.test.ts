@@ -3,6 +3,7 @@ import { answerQuery } from "../src/pipeline/answerQuery";
 import { saveIndex } from "../src/ens/indexer";
 import { buildTestIndex } from "./fixtures";
 import { NO_MATCH_MESSAGE, noMatchResult } from "../src/matching/noMatch";
+import { retrieveCandidates } from "../src/retrieval/retrieveCandidates";
 import os from "os";
 import path from "path";
 

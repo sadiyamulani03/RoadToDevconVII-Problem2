@@ -1,4 +1,5 @@
-node_modules/
+# Dependencies (no trailing slash so a symlinked node_modules is ignored too)
+node_modules
 .next/
 out/
 coverage/
@@ -13,3 +14,6 @@ coverage/
 
 *.tsbuildinfo
 .DS_Store
+
+# Internal agent-tool worktrees (never part of the repository)
+.kilo/

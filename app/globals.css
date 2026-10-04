@@ -1,0 +1,110 @@
+:root {
+  --fg: #171717;
+  --muted: #6b7280;
+  --bg: #f8f8f8;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --ok: #15803d;
+  --warn: #b45309;
+  --err: #b91c1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--card);
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status-no_match {
+  color: var(--warn);
+}
+
+.status-error {
+  color: var(--err);
+}
+
+.status-match,
+.status-preview {
+  color: var(--ok);
+}
+
+.rejected {
+  color: var(--err);
+  font-size: 0.9rem;
+}
+
+.match {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.match h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.25rem;
+  word-break: break-all;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}

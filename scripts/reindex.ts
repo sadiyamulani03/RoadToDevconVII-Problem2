@@ -21,30 +21,30 @@ async function main(): Promise<void> {
   );
 
   let source: "ens" | "fixture";
+  let index;
   if (sourceFlag === "ens") {
     console.log("Rebuilding index from LIVE Sepolia ENS text-record reads (getEnsText)...");
     const client = createEnsClient();
     source = "ens";
-    var index = await buildIndexFromEns(client, config.members);
+    index = await buildIndexFromEns(client, config.members);
   } else if (sourceFlag === "fixture") {
     console.log("Rebuilding index from the documented offline demo fixture (NOT live ENS).");
     console.log("ENS text records remain the runtime source of truth; this mode is for demos/tests only.");
     source = "fixture";
-    var index2 = await buildIndexFromFixture();
+    index = await buildIndexFromFixture();
   } else {
     throw new Error(`Unknown --source "${sourceFlag}" (expected "ens" or "fixture")`);
   }
 
-  const finalIndex = index ?? index2!;
-  await saveIndex(finalIndex);
+  await saveIndex(index);
 
   console.log(
-    `Indexed ${finalIndex.profiles.length}/${config.members.length} members -> .data/ens-index.json (source: ${source})`,
+    `Indexed ${index.profiles.length}/${config.members.length} members -> .data/ens-index.json (source: ${source})`,
   );
-  for (const error of finalIndex.errors) {
+  for (const error of index.errors) {
     console.warn(`  skipped ${error.ensName}: ${error.reason}`);
   }
-  if (finalIndex.profiles.length === 0) {
+  if (index.profiles.length === 0) {
     console.warn(
       "WARNING: the index is empty. If the ENS names do not exist on Sepolia yet, run `npm run seed` (needs a funded test wallet), or `npm run index:demo` for the documented offline fixture.",
     );

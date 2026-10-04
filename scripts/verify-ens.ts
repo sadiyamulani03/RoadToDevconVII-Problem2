@@ -1,4 +1,4 @@
-import { createPublicClient, http, namehash, parseAbi } from "viem";
+import { namehash, parseAbi } from "viem";
 import { createEnsClient, ENS_REGISTRY_SEPOLIA, DEFAULT_SEPOLIA_RPC } from "../src/ens/client";
 import { loadCommunityConfig } from "../src/ens/community";
 import { readCommunityProfile } from "../src/ens/profileReader";
@@ -16,7 +16,7 @@ const registryAbi = parseAbi(["function resolver(bytes32 node) view returns (add
 
 async function main(): Promise<void> {
   const client = createEnsClient();
-  console.log(`Chain: ${client.chain.name ?? "sepolia"} (id ${client.chain.id})`);
+  console.log(`Chain: ${client.chain?.name ?? "sepolia"} (id ${client.chain?.id ?? "?"})`);
   console.log(`RPC: ${process.env.SEPOLIA_RPC_URL ?? DEFAULT_SEPOLIA_RPC}`);
 
   const config = await loadCommunityConfig();

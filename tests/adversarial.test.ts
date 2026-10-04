@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { answerQuery } from "../src/pipeline/answerQuery";
 import { saveIndex } from "../src/ens/indexer";
 import { buildTestIndex, ADVERSARIAL_NAME, ADVERSARIAL_INJECTED_NAME, FIXTURE_PATH } from "./fixtures";

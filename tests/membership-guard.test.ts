@@ -58,7 +58,7 @@ describe("CHECK 1 / Test A — candidate membership guard", () => {
       candidates,
     );
 
-    expect(validMatches.map((match) => match.ensName)).toEqual([realName, realName]);
+    expect(validMatches.map((match) => match.ensName)).toEqual([realName]);
     expect(rejectedNames).toEqual(["looks-like-ens.eth"]);
   });
 

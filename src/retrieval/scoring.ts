@@ -64,7 +64,6 @@ export function scoreCandidate(query: ParsedQuery, profile: CommunityProfile): S
   const matchedFields = new Set<string>();
 
   let skillScore = 0;
-  const skillTokens = new Set(profile.skills.flatMap((skill) => tokenize(skill)));
   for (const skill of profile.skills) {
     const phrase = toMatchText(skill);
     if (containsPhrase(query.matchText, phrase)) {

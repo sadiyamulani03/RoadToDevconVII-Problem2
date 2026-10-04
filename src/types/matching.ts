@@ -1,5 +1,3 @@
-import type { CommunityProfile } from "./profile";
-
 /**
  * A single person the final answer presents. Built by the membership guard
  * (src/matching/validateMatches.ts) from a model match PLUS the trusted

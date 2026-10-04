@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { buildIndexFromEns, loadIndex, saveIndex } from "../src/ens/indexer";
 import { loadCommunityConfig } from "../src/ens/community";
 import { TEXT_RECORD_KEYS, TEXT_RECORD_KEY_LIST } from "../src/ens/textRecords";
